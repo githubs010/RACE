@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Race Leaderboard — Live</title>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080606;--surface:#110c0c;--surface-2:#1a1212;
+  --border:rgba(255,255,255,0.06);
+  --text:#f0ecec;--text-muted:#8a8080;--text-faint:#3e3636;
+  --gold:#f5c800;--green:#00e676;--red:#ff4444;
+  --r-sm:.375rem;--r-md:.5rem;--r-lg:.75rem;
+  --t:200ms cubic-bezier(.16,1,.3,1);
+}
+body{
+  min-height:100dvh;font-family:'Cabinet Grotesk','Inter',sans-serif;
+  color:var(--text);background:var(--bg);
+  background-image:radial-gradient(ellipse 120% 55% at 50% -5%,rgba(90,20,20,.45) 0%,transparent 65%);
+  display:flex;flex-direction:column;
+}
+
+/* ── Hero Header ── */
+.hero{
+  text-align:center;padding:3rem 1.5rem 2rem;
+  background:linear-gradient(180deg,rgba(107,26,26,.2) 0%,transparent 100%);
+  border-bottom:1px solid rgba(245,200,0,.12);
+}
+.hero-flag{font-size:3rem;margin-bottom:.75rem;display:block}
+.hero-event{font-size:.75rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem}
+.hero-title{font-size:clamp(1.8rem,6vw,3.5rem);font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);line-height:1.1;margin-bottom:.5rem}
+.hero-meta{display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:1rem}
+.hero-meta-item{display:flex;align-items:center;gap:.35rem;font-size:.8rem;color:var(--text-muted);font-weight:600}
+.live-badge{display:flex;align-items:center;gap:.4rem;background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.3);border-radius:var(--r-sm);padding:.3rem .7rem;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.announcement{margin:.75rem auto 0;max-width:600px;background:rgba(245,200,0,.07);border:1px solid rgba(245,200,0,.2);border-radius:var(--r-md);padding:.6rem 1rem;font-size:.85rem;color:var(--gold);font-weight:600;text-align:center;display:none}
+
+/* ── Main ── */
+.lb-wrap{flex:1;padding:2rem 1.5rem;max-width:720px;margin:0 auto;width:100%}
+
+.section-label{font-size:.75rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.sync-time{font-weight:600;color:var(--text-faint)}
+
+/* ── Podium ── */
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:.75rem;align-items:end;margin-bottom:2rem}
+.podium-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem .75rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.5rem;transition:transform var(--t)}
+.podium-card.p1{border-color:rgba(245,200,0,.4);background:rgba(245,200,0,.04);transform:translateY(-12px)}
+.podium-card.p2{border-color:rgba(180,180,180,.2)}
+.podium-card.p3{border-color:rgba(180,120,60,.2)}
+.podium-trophy{font-size:2rem}
+.podium-rank{font-size:.65rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted)}
+.p1 .podium-rank{color:var(--gold)} .p2 .podium-rank{color:#b8b8b8} .p3 .podium-rank{color:#c87c3c}
+.podium-color{width:14px;height:14px;border-radius:50%;margin:auto}
+.podium-name{font-size:.9rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.p1 .podium-name{color:#f5d060;font-size:1.1rem} .p2 .podium-name{color:#d0d0d0} .p3 .podium-name{color:#d08050}
+.podium-time{font-size:1rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
+.p1 .podium-time{font-size:1.2rem;color:var(--gold)}
+
+/* ── Full List ── */
+.lb-list{display:flex;flex-direction:column;gap:.5rem}
+.lb-entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:.75rem 1.1rem;display:flex;align-items:center;gap:.75rem;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.lb-entry.r1{border-color:rgba(245,200,0,.25);background:rgba(245,200,0,.03)}
+.lb-entry.r2{border-color:rgba(180,180,180,.15)}
+.lb-entry.r3{border-color:rgba(180,120,60,.15)}
+.entry-rank{font-size:.75rem;font-weight:900;letter-spacing:.08em;min-width:26px;color:var(--text-faint)}
+.r1 .entry-rank{color:var(--gold)} .r2 .entry-rank{color:#b8b8b8} .r3 .entry-rank{color:#c87c3c}
+.entry-bar{width:4px;height:26px;border-radius:9999px;flex-shrink:0}
+.entry-name{flex:1;font-weight:700;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase}
+.r1 .entry-name{color:#f5d060} .r2 .entry-name{color:#d0d0d0} .r3 .entry-name{color:#d08050}
+.entry-time{font-weight:800;font-size:.95rem;font-variant-numeric:tabular-nums}
+.entry-medal{font-size:1rem}
+
+.empty{text-align:center;color:var(--text-faint);font-size:.9rem;padding:3rem;font-style:italic}
+
+/* ── Footer ── */
+footer{text-align:center;padding:1.5rem;color:var(--text-faint);font-size:.75rem;border-top:1px solid var(--border)}
+
+@media(max-width:480px){
+  .podium{grid-template-columns:1fr 1fr 1fr;gap:.4rem}
+  .podium-card.p1{transform:translateY(-8px)}
+  .podium-trophy{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <span class="hero-flag">🏁</span>
+  <div class="hero-event">Live Race Event</div>
+  <div class="hero-title" id="ev-title">Race Leaderboard</div>
+  <div class="hero-meta">
+    <div class="hero-meta-item">📍 <span id="ev-venue">—</span></div>
+    <div class="hero-meta-item">📅 <span id="ev-date">—</span></div>
+    <div class="hero-meta-item">🏎️ <span id="ev-cat">—</span></div>
+    <div class="live-badge"><span class="live-dot"></span> Live Updates</div>
+  </div>
+  <div class="announcement" id="announcement"></div>
+</div>
+
+<!-- Leaderboard -->
+<div class="lb-wrap">
+
+  <!-- Podium (top 3) -->
+  <div class="podium" id="podium" style="display:none">
+    <div class="podium-card p2" id="pod2">
+      <div class="podium-trophy">🥈</div>
+      <div class="podium-color" id="pod2-color"></div>
+      <div class="podium-rank">#2</div>
+      <div class="podium-name" id="pod2-name">—</div>
+      <div class="podium-time" id="pod2-time">—</div>
+    </div>
+    <div class="podium-card p1" id="pod1">
+      <div class="podium-trophy">🥇</div>
+      <div class="podium-color" id="pod1-color"></div>
+      <div class="podium-rank">#1 WINNER</div>
+      <div class="podium-name" id="pod1-name">—</div>
+      <div class="podium-time" id="pod1-time">—</div>
+    </div>
+    <div class="podium-card p3" id="pod3">
+      <div class="podium-trophy">🥉</div>
+      <div class="podium-color" id="pod3-color"></div>
+      <div class="podium-rank">#3</div>
+      <div class="podium-name" id="pod3-name">—</div>
+      <div class="podium-time" id="pod3-time">—</div>
+    </div>
+  </div>
+
+  <div class="section-label">
+    <span>Full Results</span>
+    <span class="sync-time" id="sync-time">Loading…</span>
+  </div>
+  <div class="lb-list" id="lb-list">
+    <div class="empty">Waiting for race results…</div>
+  </div>
+</div>
+
+<footer>🏁 Race Lap Time Panel &nbsp;·&nbsp; Auto-refreshes every 10 seconds</footer>
+
+<script>
+const API = localStorage.getItem('raceApi') || '';
+const medals = ['🥇','🥈','🥉'];
+
+window.onload = () => {
+  // Load event info from localStorage (set by admin)
+  const ev = JSON.parse(localStorage.getItem('raceEvent') || '{}');
+  if (ev.name)  document.getElementById('ev-title').textContent = ev.name;
+  if (ev.venue) document.getElementById('ev-venue').textContent = ev.venue;
+  if (ev.date)  document.getElementById('ev-date').textContent = new Date(ev.date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  if (ev.cat)   document.getElementById('ev-cat').textContent = ev.cat;
+  if (ev.note) {
+    const a = document.getElementById('announcement');
+    a.textContent = '📢 ' + ev.note;
+    a.style.display = 'block';
+  }
+  load();
+  setInterval(load, 10000);
+};
+
+async function load() {
+  if (!API) { document.getElementById('sync-time').textContent = 'No API set (open admin first)'; return; }
+  try {
+    const res = await fetch(API + '?action=read&_=' + Date.now());
+    const d = await res.json();
+    const records = d.records || [];
+    renderPodium(records);
+    renderList(records);
+    document.getElementById('sync-time').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch { document.getElementById('sync-time').textContent = 'Connection error'; }
+}
+
+function renderPodium(records) {
+  const pod = document.getElementById('podium');
+  if (records.length < 1) { pod.style.display='none'; return; }
+  pod.style.display = 'grid';
+  [[1,'pod1'],[2,'pod2'],[3,'pod3']].forEach(([rank,id]) => {
+    const e = records[rank-1];
+    if (!e) { document.getElementById(id).style.display='none'; return; }
+    document.getElementById(id).style.display='flex';
+    document.getElementById(id+'-color').style.cssText = `background:${e.Color||e.color||'#888'};width:14px;height:14px;border-radius:50%;margin:auto;box-shadow:0 0 8px ${e.Color||e.color||'#888'}`;
+    document.getElementById(id+'-name').textContent = e.Name||e.name||'';
+    document.getElementById(id+'-time').textContent = e.LapTime||e.lapTime||'';
+  });
+}
+
+function renderList(records) {
+  const c = document.getElementById('lb-list');
+  if (!records.length) { c.innerHTML = '<div class="empty">Waiting for race results…</div>'; return; }
+  c.innerHTML = '';
+  records.forEach((e, i) => {
+    const rank = i+1;
+    const div = document.createElement('div');
+    div.className = 'lb-entry' + (rank<=3?' r'+rank:'');
+    div.style.animationDelay = (i*0.04)+'s';
+    div.innerHTML = `
+      <div class="entry-rank">#${rank}</div>
+      <div class="entry-bar" style="background:${e.Color||e.color||'#888'}"></div>
+      <div class="entry-name">${e.Name||e.name||''}</div>
+      <span style="color:var(--text-faint)">│</span>
+      <span>⏱️</span>
+      <div class="entry-time">${e.LapTime||e.lapTime||''}</div>
+      ${rank<=3?`<span class="entry-medal">${medals[rank-1]}</span>`:''}`;
+    c.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
