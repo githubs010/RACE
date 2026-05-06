@@ -189,17 +189,8 @@ input[type="color"]{position:absolute;opacity:0;width:0;height:0;pointer-events:
     <div class="stat-card"><div class="stat-val" id="stat-lb" style="color:var(--blue)">0</div><div class="stat-label">Leaderboard</div></div>
     <div class="stat-card"><div class="stat-val" id="stat-best" style="color:var(--purple)">--</div><div class="stat-label">Best Lap</div></div>
   </div>
-
-  <!-- API Setup -->
-  <div class="card">
-    <div class="card-header"><div class="card-title">🔗 Google Sheets API</div></div>
-    <div class="card-body">
-      <div class="api-row">
-        <input id="api-url" type="text" placeholder="Paste your Apps Script Web App URL here…" />
-        <button class="btn btn-gold" onclick="saveApi()">Save</button>
-        <button class="btn btn-ghost" onclick="loadLB()">↻ Sync</button>
+<div class="card-body">
       </div>
-    </div>
   </div>
 
   <!-- Event Config -->
@@ -328,7 +319,7 @@ let lbData = [];
 
 // ── Init ────────────────────────────────────────────────────────
 window.onload = () => {
-  document.getElementById('api-url').value = API;
+  // API URL is hardcoded — no input field needed
   if (API) loadLB();
   const ev = JSON.parse(localStorage.getItem(EVENT_KEY) || '{}');
   if (ev.name)  document.getElementById('ev-name').value  = ev.name;
@@ -353,12 +344,7 @@ const cpicker = document.getElementById('cpicker');
 const edit_cpicker = document.getElementById('edit-cpicker');
 
 // ── API ─────────────────────────────────────────────────────────
-function saveApi() {
-  API = document.getElementById('api-url').value.trim();
-  localStorage.setItem('raceApi', API);
-  showToast('✅ API URL saved!', 'ok');
-  if (API) loadLB();
-}
+function saveApi() { /* API is hardcoded */ }
 
 // ── Event ───────────────────────────────────────────────────────
 function saveEvent() {
