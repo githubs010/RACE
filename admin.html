@@ -152,6 +152,16 @@ input[type="color"]{position:absolute;opacity:0;width:0;height:0;pointer-events:
 </style>
 </head>
 <body>
+<script>
+// ── Auth Guard ─────────────────────────────────────────────────
+(function() {
+  const SESSION_KEY = "raceAdminSession";
+  const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null");
+  if (!s || s.expires <= Date.now()) {
+    window.location.href = "login.html";
+  }
+})();
+</script>
 <div class="app">
 
 <!-- Topbar -->
@@ -166,6 +176,7 @@ input[type="color"]{position:absolute;opacity:0;width:0;height:0;pointer-events:
       <span id="status-text">No Event</span>
     </div>
     <a href="audience.html" target="_blank" class="btn-audience">📺 Audience View ↗</a>
+    <button onclick="doLogout()" style="background:rgba(255,68,68,.12);color:var(--red);border:1px solid rgba(255,68,68,.28);border-radius:var(--r-md);padding:.45rem .9rem;font-family:inherit;font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">🚪 Logout</button>
   </div>
 </div>
 
@@ -580,6 +591,14 @@ function showToast(msg, type='') {
 
 document.getElementById('modal').addEventListener('click', e => { if (e.target===document.getElementById('modal')) closeModal(); });
 setInterval(()=>{ if(API) loadLB(); }, 30000);
+
+function doLogout() {
+  if (confirm("Logout from Admin Panel?")) {
+    sessionStorage.removeItem("raceAdminSession");
+    window.location.href = "login.html";
+  }
+}
+
 </script>
 </body>
 </html>
